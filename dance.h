@@ -11,6 +11,9 @@
 #include <QSoundEffect>
 #include <QAudioOutput>
 #include <QtMultimedia>
+#include <QSerialPort>
+#include <QSerialPortInfo>
+#include <QString>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class dance; }
@@ -27,6 +30,7 @@ public:
     ~dance();
 
 protected:
+    QSerialPort* arduino;
     QTimer* timer;
     QTimer* timer1;
     QMediaPlayer* player;
@@ -40,22 +44,33 @@ protected:
     void podskok(int czas);
     void obrot(int czas);
     //void StartFreestyle();
+    void changeGif(const QString& filePath);
+
 
 
 signals:
     void resized(QResizeEvent *event);
 
 private slots:
-
+    void readSerial();
     void on_action_Freestyle_triggered();
 
     void on_Slider_Volume_valueChanged(int value);
+
+    void on_pushButton_clicked();
 
 private:
     Ui::dance *ui;
     QMovie *movie;
     int counter;
     bool isAnimationRunning;
+    static const quint16 arduino_uno_vendor_id = 9025;
+    static const quint16 arduino_uno_product_id = 67;
+    QByteArray serialData;
+    QString serialBuffer;
+    QString parsed_data;
+    void podzialDanych();
+
 
 };
 
