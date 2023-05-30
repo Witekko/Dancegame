@@ -140,26 +140,44 @@
     <property name="title">
      <string>menu</string>
     </property>
-    <widget class="QMenu" name="menu_start">
+    <widget class="QMenu" name="menu_cantina">
      <property name="title">
-      <string>Start</string>
+      <string>Cantina</string>
      </property>
-     <addaction name="action_Freestyle"/>
-     <addaction name="action_Standard"/>
+     <addaction name="cantina_Standard"/>
+     <addaction name="cantina_Freesty"/>
     </widget>
-    <addaction name="menu_start"/>
+    <widget class="QMenu" name="menuKylie_Akcent">
+     <property name="title">
+      <string>Kylie-Akcent</string>
+     </property>
+     <addaction name="akcent_standard"/>
+     <addaction name="akcent_freestyle"/>
+    </widget>
+    <addaction name="menu_cantina"/>
+    <addaction name="menuKylie_Akcent"/>
    </widget>
    <addaction name="menumenu"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
-  <action name="action_Freestyle">
+  <action name="cantina_Standard">
+   <property name="text">
+    <string>Standard</string>
+   </property>
+  </action>
+  <action name="cantina_Freesty">
    <property name="text">
     <string>Freestyle</string>
    </property>
   </action>
-  <action name="action_Standard">
+  <action name="akcent_standard">
    <property name="text">
     <string>Standard</string>
+   </property>
+  </action>
+  <action name="akcent_freestyle">
+   <property name="text">
+    <string>Freestyle</string>
    </property>
   </action>
  </widget>

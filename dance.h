@@ -34,17 +34,23 @@ protected:
     QTimer* timer;
     QTimer* timer1;
     QMediaPlayer* player;
-    QSoundEffect* soundEffect;
     QAudioOutput* audioOutput;
+    QString musicFilePath;
     void standardGif();
-    void keyPressEvent(QKeyEvent *event) override;
+    //void keyPressEvent(QKeyEvent *event) override;
     void movieFinished();
-    void PlayMusic1();
+    void PlayMusic1(QString musicFilePath);
+    //void wczytajRuch();
     void timerTimeout1();
+    void timerTimeout2();
     void podskok(int czas);
     void obrot(int czas);
+    void fala(int czas);
+    void rondo(int czas);
+    void shuffle(int czas);
     //void StartFreestyle();
     void changeGif(const QString& filePath);
+
 
 
 
@@ -53,16 +59,19 @@ signals:
 
 private slots:
     void readSerial();
-    void on_action_Freestyle_triggered();
 
     void on_Slider_Volume_valueChanged(int value);
 
-    void on_pushButton_clicked();
+    void on_cantina_Freesty_triggered();
+    void on_akcent_freestyle_triggered();
 
 private:
     Ui::dance *ui;
     QMovie *movie;
     int counter;
+    int numCalls;
+    QVector<int> times;
+    QVector<int> functions;
     bool isAnimationRunning;
     static const quint16 arduino_uno_vendor_id = 9025;
     static const quint16 arduino_uno_product_id = 67;
@@ -70,6 +79,7 @@ private:
     QString serialBuffer;
     QString parsed_data;
     void podzialDanych();
+    void moves(float x, float y,float z);
 
 
 };

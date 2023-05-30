@@ -6,5 +6,7 @@
         <file>animations/podskok.gif</file>
         <file>animations/shuffle.gif</file>
         <file>animations/fala.gif</file>
+        <file>music/cantina.mp3</file>
+        <file>moves/cantina.txt</file>
     </qresource>
 </RCC>
