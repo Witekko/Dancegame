@@ -7,7 +7,24 @@ dance::dance(QWidget *parent)
     , ui(new Ui::dance)
 {
     ui->setupUi(this);
-    standardGif();
+    isGameRunning= false;
+    startGif();
+    ui->label_ruch->setScaledContents(true);
+    QPixmap ruch(":/rec/moves/dance.jpg");
+    int wruch = ui->label_ruch->width();
+    int hruch = ui->label_ruch->height();
+    ui->label_ruch->setPixmap(ruch.scaled(wruch,hruch,Qt::KeepAspectRatio));
+    ui->label_danex->setText("m/s²");
+    ui->label_daney->setText("m/s²");
+    ui->label_danez->setText("m/s²");
+    ui->lineEdit_X->setReadOnly(true);
+    ui->lineEdit_Y->setReadOnly(true);
+    ui->lineEdit_Z->setReadOnly(true);
+    ui->lineEdit_X->setAlignment(Qt::AlignRight);
+    ui->lineEdit_Y->setAlignment(Qt::AlignRight);
+    ui->lineEdit_Z->setAlignment(Qt::AlignRight);
+
+
     player = new QMediaPlayer(this);
     audioOutput = new QAudioOutput(this);
     isAnimationRunning = false;
@@ -129,7 +146,25 @@ void dance::readSerial(){
 //        }
 //    }
 //}
+void dance::startGif(){
 
+    movie = new QMovie(":/rec/animations/start1.gif");
+    ui->labelgif->setScaledContents(true);
+    ui->labelgif->setMovie( movie);
+    int w = ui->labelgif->width();
+    int h = ui->labelgif->height();
+    int movieWidth = movie->scaledSize().width();
+    int movieHeight = movie->scaledSize().height();
+
+    if (movieWidth > w || movieHeight > h) {
+        double widthRatio = (double) w / movieWidth;
+        double heightRatio = (double) h / movieHeight;
+        double scaleFactor = qMin(widthRatio, heightRatio);
+        QSize scaledSize(scaleFactor * movieWidth, scaleFactor * movieHeight);
+        movie->setScaledSize(scaledSize);
+    }
+    movie->start();
+}
 void dance::standardGif(){
 
     movie = new QMovie(":/rec/animations/Basic.gif");
@@ -161,28 +196,29 @@ void dance::movieFinished() {
 
 void dance::Odliczanie()
 {
+    int countdown = 5;
 
-    int countdown = 3;
-
-    // Tworzenie QTimer
     timer = new QTimer(this);
 
-    connect(timer, &QTimer::timeout, this, [this, &countdown]() {
+    connect(timer, &QTimer::timeout, this, [countdown, this]() mutable {
         if (countdown > 0) {
-
-            ui->label_ruch->setText(QString::number(countdown));
+            QString str = QString::number(countdown);
+            ui->label_ruch->setText(str);
             countdown--;
         } else {
-            ui->label_ruch->setText("Start!");
+            QPixmap ruch(":/rec/moves/dance.jpg");
+
+            int wruch = ui->label_ruch->width();
+            int hruch = ui->label_ruch->height();
+            ui->label_ruch->setPixmap(ruch.scaled(wruch,hruch,Qt::KeepAspectRatio));
             timer->stop();
             timer->deleteLater();
             PlayMusic1(musicFilePath);
         }
     });
-    // Ustawienie interwału timera na 1 sekundę (1000 ms)
+
     timer->start(1000);
 }
-
 void dance::podzialDanych()
 {
     QStringList values = parsed_data.split(","); // Podział łańcucha na trzy części
@@ -190,10 +226,10 @@ void dance::podzialDanych()
     if (values.length() == 3) {
         bool ok;
         float x = values[0].toFloat(&ok); // Konwersja pierwszej części na float
-        ui->label_danex->setText(values[0]);
-        ui->label_daney->setText(values[1]);
-        ui->label_danez->setText(values[2]);
 
+        ui->lineEdit_X->setText(values[0]);
+        ui->lineEdit_Y->setText(values[1]);
+        ui->lineEdit_Z->setText(values[2]);
         if (ok) {
             float y = values[1].toFloat(&ok); // Konwersja drugiej części na float
             if (ok) {
@@ -207,19 +243,21 @@ void dance::podzialDanych()
     }
 }
 void dance::moves(float x, float y,float z){
-    if(!isAnimationRunning){
-        if (x > 8.0f && y < 3.0f && y > -3.0f) {
-            changeGif(":/rec/animations/Oruch.gif");
-        }   else if (x < -8.0f && y < 3.0f && y > -3.0f) {
-            changeGif(":/rec/animations/obrot.gif");
-        }   else if (y > 8.0f && x < 3.0f && y > -3.0f) {
-            changeGif(":/rec/animations/podskok.gif");
-        }   else if (y < -8.0f && x < 3.0f && x > -3.0f) {
-            changeGif(":/rec/animations/shuffle.gif");
-        }   else if (y < -5.0f && x > 5.0f) {
-            changeGif(":/rec/animations/fala.gif");
-        }
+    if(isGameRunning){
+        if(!isAnimationRunning){
+            if (x > 8.0f && y < 3.0f && y > -3.0f) {
+                changeGif(":/rec/animations/Oruch.gif");
+            }   else if (x < -8.0f && y < 3.0f && y > -3.0f) {
+                changeGif(":/rec/animations/obrot.gif");
+            }   else if (y > 8.0f && x < 3.0f && y > -3.0f) {
+                changeGif(":/rec/animations/podskok.gif");
+            }   else if (y < -8.0f && x < 3.0f && x > -3.0f) {
+                changeGif(":/rec/animations/shuffle.gif");
+            }   else if (y < -5.0f && x > 5.0f) {
+                changeGif(":/rec/animations/fala.gif");
+            }
 
+        }
     }
 }
 void dance::changeGif(const QString& filePath)
@@ -266,11 +304,11 @@ void dance::PlayMusic1(QString musicFilePath)
     // Otwieranie i odczyt pliku tekstowego
     QFile file;
 
-    if (musicFilePath == ":/rec/music/cantina.mp3") {
-        file.setFileName(":/rec/moves/cantina.txt");
+    if (musicFilePath == "C:/Users/wajci/Documents/DanceGame/music/cantina.mp3") {
+        file.setFileName("C:/Users/wajci/Documents/DanceGame/moves/cantina.txt");
         qDebug() << file.fileName();
-    } else if (musicFilePath == ":rec/music/KylieAkcent.mp3") {
-        file.setFileName(":/rec/moves/KylieAkcent.txt");
+    } else if (musicFilePath == "C:/Users/wajci/Documents/DanceGame/music/KylieAkcent.mp3") {
+        file.setFileName("C:/Users/wajci/Documents/DanceGame/moves/KylieAkcent.txt");
     } else {
         qDebug() << "Nieprawidłowa ścieżka do pliku.";
         return;
@@ -328,49 +366,96 @@ void dance::timerTimeout1()
             break;
         }
     } else {
-        ui->label_ruch->setText("Ruch");
+        QPixmap ruch(":/rec/moves/dance.jpg");
+
+        int wruch = ui->label_ruch->width();
+        int hruch = ui->label_ruch->height();
+        ui->label_ruch->setPixmap(ruch.scaled(wruch,hruch,Qt::KeepAspectRatio));
         // Inne operacje po zakończeniu zmiany napisów
     }
 }
 
 void dance::podskok(int czas)
 {
-    ui->label_ruch->setText("podskok");
-    QTimer::singleShot(1500, this, [this, czas]() { // Dodano "czas" do listy przechwytującej lambdę
-        ui->label_ruch->setText("Ruch");
+
+    QPixmap ruch(":/rec/moves/podskok.jpg");
+
+    int wruch = ui->label_ruch->width();
+    int hruch = ui->label_ruch->height();
+    ui->label_ruch->setPixmap(ruch.scaled(wruch,hruch,Qt::KeepAspectRatio));
+
+    QTimer::singleShot(1500, this, [this, czas]() {
+        QPixmap ruch(":/rec/moves/dance.jpg");
+
+        int wruch = ui->label_ruch->width();
+        int hruch = ui->label_ruch->height();
+        ui->label_ruch->setPixmap(ruch.scaled(wruch,hruch,Qt::KeepAspectRatio));
+
         QTimer::singleShot(czas, this, &dance::timerTimeout1);
     });
 }
 
 void dance::obrot(int czas)
 {
-    ui->label_ruch->setText("obrot");
+    QPixmap ruch(":/rec/moves/lewo.jpg");
+
+    int wruch = ui->label_ruch->width();
+    int hruch = ui->label_ruch->height();
+    ui->label_ruch->setPixmap(ruch.scaled(wruch,hruch,Qt::KeepAspectRatio));
     QTimer::singleShot(1500, this, [this, czas]() { // Dodano "czas" do listy przechwytującej lambdę
-        ui->label_ruch->setText("Ruch");
+        QPixmap ruch(":/rec/moves/dance.jpg");
+
+        int wruch = ui->label_ruch->width();
+        int hruch = ui->label_ruch->height();
+        ui->label_ruch->setPixmap(ruch.scaled(wruch,hruch,Qt::KeepAspectRatio));
         QTimer::singleShot(czas, this, &dance::timerTimeout1);
     });
 }
 void dance::shuffle(int czas)
 {
-    ui->label_ruch->setText("shuffle");
+    QPixmap ruch(":/rec/moves/dol.jpg");
+
+    int wruch = ui->label_ruch->width();
+    int hruch = ui->label_ruch->height();
+    ui->label_ruch->setPixmap(ruch.scaled(wruch,hruch,Qt::KeepAspectRatio));
     QTimer::singleShot(1500, this, [this, czas]() { // Dodano "czas" do listy przechwytującej lambdę
-        ui->label_ruch->setText("Ruch");
+        QPixmap ruch(":/rec/moves/dance.jpg");
+
+        int wruch = ui->label_ruch->width();
+        int hruch = ui->label_ruch->height();
+        ui->label_ruch->setPixmap(ruch.scaled(wruch,hruch,Qt::KeepAspectRatio));
         QTimer::singleShot(czas, this, &dance::timerTimeout1);
     });
 }
 void dance::rondo(int czas)
 {
-    ui->label_ruch->setText("rondo");
+    QPixmap ruch(":/rec/moves/prawo.jpg");
+
+    int wruch = ui->label_ruch->width();
+    int hruch = ui->label_ruch->height();
+    ui->label_ruch->setPixmap(ruch.scaled(wruch,hruch,Qt::KeepAspectRatio));
     QTimer::singleShot(1500, this, [this, czas]() { // Dodano "czas" do listy przechwytującej lambdę
-        ui->label_ruch->setText("Ruch");
+        QPixmap ruch(":/rec/moves/dance.jpg");
+
+        int wruch = ui->label_ruch->width();
+        int hruch = ui->label_ruch->height();
+        ui->label_ruch->setPixmap(ruch.scaled(wruch,hruch,Qt::KeepAspectRatio));
         QTimer::singleShot(czas, this, &dance::timerTimeout1);
     });
 }
 void dance::fala(int czas)
 {
-    ui->label_ruch->setText("fala");
+    QPixmap ruch(":/rec/moves/dolprawo.jpg");
+
+    int wruch = ui->label_ruch->width();
+    int hruch = ui->label_ruch->height();
+    ui->label_ruch->setPixmap(ruch.scaled(wruch,hruch,Qt::KeepAspectRatio));
     QTimer::singleShot(1500, this, [this, czas]() { // Dodano "czas" do listy przechwytującej lambdę
-        ui->label_ruch->setText("Ruch");
+        QPixmap ruch(":/rec/moves/dance.jpg");
+
+        int wruch = ui->label_ruch->width();
+        int hruch = ui->label_ruch->height();
+        ui->label_ruch->setPixmap(ruch.scaled(wruch,hruch,Qt::KeepAspectRatio));
         QTimer::singleShot(czas, this, &dance::timerTimeout1);
     });
 }
@@ -385,6 +470,8 @@ void dance::on_Slider_Volume_valueChanged(int value)
 
 void dance::on_cantina_Freesty_triggered()
 {
+        isGameRunning=true;
+        standardGif();
         musicFilePath = "C:/Users/wajci/Documents/DanceGame/music/cantina.mp3";
         Odliczanie();
 }
@@ -392,6 +479,8 @@ void dance::on_cantina_Freesty_triggered()
 
 void dance::on_akcent_freestyle_triggered()
 {
+        isGameRunning=true;
+        standardGif();
         musicFilePath = "C:/Users/wajci/Documents/DanceGame/music/KylieAkcent.mp3";
         Odliczanie();
 }

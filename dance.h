@@ -37,6 +37,7 @@ protected:
     QAudioOutput* audioOutput;
     QString musicFilePath;
     void standardGif();
+    void startGif();
     //void keyPressEvent(QKeyEvent *event) override;
     void movieFinished();
     void PlayMusic1(QString musicFilePath);
@@ -66,13 +67,17 @@ private slots:
     void on_akcent_freestyle_triggered();
 
 private:
+
     Ui::dance *ui;
     QMovie *movie;
+    int wruch;
+    int hruch;
     int counter;
     int numCalls;
     QVector<int> times;
     QVector<int> functions;
     bool isAnimationRunning;
+    bool isGameRunning;
     static const quint16 arduino_uno_vendor_id = 9025;
     static const quint16 arduino_uno_product_id = 67;
     QByteArray serialData;
@@ -80,6 +85,7 @@ private:
     QString parsed_data;
     void podzialDanych();
     void moves(float x, float y,float z);
+
 
 
 };

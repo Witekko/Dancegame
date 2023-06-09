@@ -8,5 +8,18 @@
         <file>animations/fala.gif</file>
         <file>music/cantina.mp3</file>
         <file>moves/cantina.txt</file>
+        <file>moves/KylieAkcent.txt</file>
+        <file>music/KylieAkcent.mp3</file>
+        <file>animations/start.gif</file>
+        <file>animations/start1.gif</file>
+        <file>moves/dance.jpg</file>
+        <file>moves/dol.jpg</file>
+        <file>moves/dollewo.jpg</file>
+        <file>moves/dolprawo.jpg</file>
+        <file>moves/goralewo.jpg</file>
+        <file>moves/goraprawo.jpg</file>
+        <file>moves/lewo.jpg</file>
+        <file>moves/podskok.jpg</file>
+        <file>moves/prawo.jpg</file>
     </qresource>
 </RCC>
