@@ -15,6 +15,7 @@
 #include <QSerialPortInfo>
 #include <QString>
 
+
 QT_BEGIN_NAMESPACE
 namespace Ui { class dance; }
 QT_END_NAMESPACE
@@ -24,6 +25,7 @@ class dance : public QMainWindow
     Q_OBJECT
 public slots:
     void Odliczanie();
+
 public:
 
     dance(QWidget *parent = nullptr);
@@ -66,10 +68,16 @@ private slots:
     void on_cantina_Freesty_triggered();
     void on_akcent_freestyle_triggered();
 
+
+    void makePlot();
 private:
 
     Ui::dance *ui;
     QMovie *movie;
+    float x;
+    float y;
+    float z;
+
     int wruch;
     int hruch;
     int counter;

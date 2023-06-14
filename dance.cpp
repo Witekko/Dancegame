@@ -1,7 +1,13 @@
-
+/**
+ * @file dance.cpp
+ * @brief Implementation of the dance class
+ */
 #include "dance.h"
 #include "ui_dance.h"
-
+/**
+ * @brief Constructs a dance object.
+ * @param parent Pointer to the parent QWidget.
+ */
 dance::dance(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::dance)
@@ -86,9 +92,12 @@ dance::dance(QWidget *parent)
     {
         ui->statusbar->showMessage("Failed to establish connection.",5000);
     }
+    dance::makePlot();
 }
 
-
+/**
+ * @brief Destroys the dance object.
+ */
 dance::~dance()
 {
     if(arduino->isOpen()){
@@ -99,7 +108,9 @@ dance::~dance()
     delete audioOutput;
 
 }
-
+/**
+ * @brief Reads data from the serial port.
+ */
 void dance::readSerial(){
 
     QStringList buffer_split = serialBuffer.split(" ");
@@ -146,6 +157,9 @@ void dance::readSerial(){
 //        }
 //    }
 //}
+/**
+ * @brief Starts the GIF animation.
+ */
 void dance::startGif(){
 
     movie = new QMovie(":/rec/animations/start1.gif");
@@ -165,6 +179,9 @@ void dance::startGif(){
     }
     movie->start();
 }
+/**
+ * @brief Changes the GIF animation to the standard one.
+ */
 void dance::standardGif(){
 
     movie = new QMovie(":/rec/animations/Basic.gif");
@@ -184,7 +201,9 @@ void dance::standardGif(){
     }
     movie->start();
 }
-
+/**
+ * @brief Handles the movie finished signal.
+ */
 void dance::movieFinished() {
     // Resetowanie flagi isAnimationRunning
     isAnimationRunning = false;
@@ -193,7 +212,9 @@ void dance::movieFinished() {
     }
     standardGif();
 }
-
+/**
+ * @brief Performs countdown and starts the music.
+ */
 void dance::Odliczanie()
 {
     int countdown = 5;
@@ -219,21 +240,24 @@ void dance::Odliczanie()
 
     timer->start(1000);
 }
+/**
+ * @brief Parses the received data and updates the UI.
+ */
 void dance::podzialDanych()
 {
     QStringList values = parsed_data.split(","); // Podział łańcucha na trzy części
 
     if (values.length() == 3) {
         bool ok;
-        float x = values[0].toFloat(&ok); // Konwersja pierwszej części na float
+        x = values[0].toFloat(&ok); // Konwersja pierwszej części na float
 
         ui->lineEdit_X->setText(values[0]);
         ui->lineEdit_Y->setText(values[1]);
         ui->lineEdit_Z->setText(values[2]);
         if (ok) {
-            float y = values[1].toFloat(&ok); // Konwersja drugiej części na float
+            y = values[1].toFloat(&ok); // Konwersja drugiej części na float
             if (ok) {
-                float z = values[2].toFloat(&ok); // Konwersja trzeciej części na float
+                z = values[2].toFloat(&ok); // Konwersja trzeciej części na float
 
                 // Warunki zmiany obrazka w zależności od wartości x, y, i z
 
@@ -242,24 +266,89 @@ void dance::podzialDanych()
         }
     }
 }
-void dance::moves(float x, float y,float z){
-    if(isGameRunning){
-        if(!isAnimationRunning){
+/**
+ * @brief Handles the dance moves based on the accelerometer data.
+ * @param x The X-axis value.
+ * @param y The Y-axis value.
+ * @param z The Z-axis value.
+ */
+void dance::moves(float x, float y, float z)
+{
+    if (isGameRunning)
+    {
+        if (!isAnimationRunning)
+        {
             if (x > 8.0f && y < 3.0f && y > -3.0f) {
                 changeGif(":/rec/animations/Oruch.gif");
-            }   else if (x < -8.0f && y < 3.0f && y > -3.0f) {
+            }
+            else if (x < -8.0f && y < 3.0f && y > -3.0f) {
                 changeGif(":/rec/animations/obrot.gif");
-            }   else if (y > 8.0f && x < 3.0f && y > -3.0f) {
+            }
+            else if (y > 8.0f && x < 3.0f && y > -3.0f) {
                 changeGif(":/rec/animations/podskok.gif");
-            }   else if (y < -8.0f && x < 3.0f && x > -3.0f) {
+            }
+            else if (y < -8.0f && x < 3.0f && x > -3.0f) {
                 changeGif(":/rec/animations/shuffle.gif");
-            }   else if (y < -5.0f && x > 5.0f) {
+            }
+            else if (y < -5.0f && x > 5.0f) {
                 changeGif(":/rec/animations/fala.gif");
             }
-
         }
     }
+    this->x = x;
+    this->y = y;
+
+    makePlot();
 }
+/**
+ * @brief Creates a plot of the accelerometer data.
+ */
+void dance::makePlot()
+{
+    // Clear the existing graphs
+    ui->customPlot->clearGraphs();
+
+    // Generate some data:
+    QVector<double> xi(1), yi(1); // Initialize with entries 0..100
+    xi[0] = x;
+    yi[0] = y;
+
+    // Create graph and assign data to it:
+    ui->customPlot->addGraph();
+    ui->customPlot->graph(0)->setData(xi, yi);
+
+    // Set the pen color and style for the data line
+    QPen pen;
+    pen.setColor(Qt::blue);
+    pen.setWidth(2);
+    ui->customPlot->graph(0)->setPen(pen);
+
+    // Set the style and size of the data points
+    QCPScatterStyle scatterStyle;
+    scatterStyle.setShape(QCPScatterStyle::ssCircle);
+    scatterStyle.setSize(8);
+    scatterStyle.setPen(QPen(Qt::blue));
+    scatterStyle.setBrush(QBrush(Qt::blue));
+    ui->customPlot->graph(0)->setScatterStyle(scatterStyle);
+
+    // Give the axes some labels:
+    ui->customPlot->xAxis->setLabel("x");
+    ui->customPlot->yAxis->setLabel("y");
+
+    // Set the range of the axes to fit the data:
+    double xMin = std::min(xi[0], -10.0);
+    double xMax = std::max(xi[0], 10.0);
+    double yMin = std::min(yi[0], -10.0);
+    double yMax = std::max(yi[0], 10.0);
+    ui->customPlot->xAxis->setRange(xMin, xMax);
+    ui->customPlot->yAxis->setRange(yMin, yMax);
+
+    ui->customPlot->replot();
+}
+/**
+ * @brief Changes the GIF animation to the specified file.
+ * @param filePath The file path of the GIF animation.
+ */
 void dance::changeGif(const QString& filePath)
 {
     isAnimationRunning = true;
@@ -287,6 +376,11 @@ void dance::changeGif(const QString& filePath)
         movie->setScaledSize(scaledSize);
     }
 }
+
+/**
+ * @brief Plays the music file.
+ * @param musicFilePath The file path of the music file.
+ */
 void dance::PlayMusic1(QString musicFilePath)
 {
     player->setSource(QUrl::fromLocalFile(musicFilePath));
@@ -336,7 +430,10 @@ void dance::PlayMusic1(QString musicFilePath)
 
     file.close();
 }
-
+/**
+ * @brief Timer timeout slot for dance movements.
+ * This function is called when the timer times out. It increments the counter and performs the dance movement based on the current counter value.
+ */
 void dance::timerTimeout1()
 {
     counter++;
@@ -374,7 +471,10 @@ void dance::timerTimeout1()
         // Inne operacje po zakończeniu zmiany napisów
     }
 }
-
+/**
+ * @brief Perform "podskok" dance movement.
+ * @param czas The time duration for the dance movement.
+ */
 void dance::podskok(int czas)
 {
 
@@ -394,7 +494,10 @@ void dance::podskok(int czas)
         QTimer::singleShot(czas, this, &dance::timerTimeout1);
     });
 }
-
+/**
+ * @brief Perform "obrot" dance movement.
+ * @param czas The time duration for the dance movement.
+ */
 void dance::obrot(int czas)
 {
     QPixmap ruch(":/rec/moves/lewo.jpg");
@@ -411,6 +514,10 @@ void dance::obrot(int czas)
         QTimer::singleShot(czas, this, &dance::timerTimeout1);
     });
 }
+/**
+ * @brief Perform "shuffle" dance movement.
+ * @param czas The time duration for the dance movement.
+ */
 void dance::shuffle(int czas)
 {
     QPixmap ruch(":/rec/moves/dol.jpg");
@@ -427,6 +534,11 @@ void dance::shuffle(int czas)
         QTimer::singleShot(czas, this, &dance::timerTimeout1);
     });
 }
+
+/**
+ * @brief Perform "rondo" dance movement.
+ * @param czas The time duration for the dance movement.
+ */
 void dance::rondo(int czas)
 {
     QPixmap ruch(":/rec/moves/prawo.jpg");
@@ -443,6 +555,10 @@ void dance::rondo(int czas)
         QTimer::singleShot(czas, this, &dance::timerTimeout1);
     });
 }
+/**
+ * @brief Perform "fala" dance movement.
+ * @param czas The time duration for the dance movement.
+ */
 void dance::fala(int czas)
 {
     QPixmap ruch(":/rec/moves/dolprawo.jpg");
@@ -459,6 +575,10 @@ void dance::fala(int czas)
         QTimer::singleShot(czas, this, &dance::timerTimeout1);
     });
 }
+/**
+ * @brief Slot for handling volume slider value changes.
+ * @param value The new value of the volume slider.
+ */
 void dance::on_Slider_Volume_valueChanged(int value)
 {
     qreal qrealVolume = value / 100.0;
@@ -466,7 +586,10 @@ void dance::on_Slider_Volume_valueChanged(int value)
     audioOutput->setVolume(linearVolume);
 }
 
-
+/**
+ * @brief Slot for handling the "cantina Freesty" action trigger.
+ * This function is called when the "cantina Freesty" action is triggered. It sets the game running flag, sets the standard GIF, and initializes the music file path. Then, it calls the "Odliczanie" function.
+ */
 
 void dance::on_cantina_Freesty_triggered()
 {
@@ -476,7 +599,10 @@ void dance::on_cantina_Freesty_triggered()
         Odliczanie();
 }
 
-
+/**
+ * @brief Slot for handling the "akcent freestyle" action trigger.
+ * This function is called when the "akcent freestyle" action is triggered. It sets the game running flag, sets the standard GIF, and initializes the music file path. Then, it calls the "Odliczanie" function.
+ */
 void dance::on_akcent_freestyle_triggered()
 {
         isGameRunning=true;
@@ -484,4 +610,7 @@ void dance::on_akcent_freestyle_triggered()
         musicFilePath = "C:/Users/wajci/Documents/DanceGame/music/KylieAkcent.mp3";
         Odliczanie();
 }
+
+
+
 

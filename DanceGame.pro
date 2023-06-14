@@ -1,6 +1,6 @@
 QT       += core gui multimedia serialport
 
-greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
+greaterThan(QT_MAJOR_VERSION, 4): QT += widgets printsupport
 
 CONFIG += c++17
 
@@ -10,10 +10,12 @@ CONFIG += c++17
 
 SOURCES += \
     main.cpp \
-    dance.cpp
+    dance.cpp \
+    qcustomplot.cpp
 
 HEADERS += \
-    dance.h
+    dance.h \
+    qcustomplot.h
 
 FORMS += \
     dance.ui

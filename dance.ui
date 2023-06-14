@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1203</width>
-    <height>630</height>
+    <width>1285</width>
+    <height>689</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -102,6 +102,9 @@
        </layout>
       </item>
       <item>
+       <widget class="QCustomPlot" name="customPlot" native="true"/>
+      </item>
+      <item>
        <layout class="QHBoxLayout" name="horizontalLayout_4">
         <item>
          <widget class="QLabel" name="label">
@@ -122,13 +125,6 @@
         </item>
        </layout>
       </item>
-      <item>
-       <widget class="QLabel" name="labelpkt">
-        <property name="text">
-         <string>Punkty</string>
-        </property>
-       </widget>
-      </item>
      </layout>
     </item>
    </layout>
@@ -138,13 +134,13 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1203</width>
+     <width>1285</width>
      <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menumenu">
     <property name="title">
-     <string>menu</string>
+     <string>Game mode</string>
     </property>
     <widget class="QMenu" name="menu_cantina">
      <property name="title">
@@ -187,6 +183,14 @@
    </property>
   </action>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>QCustomPlot</class>
+   <extends>QWidget</extends>
+   <header>qcustomplot.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>
